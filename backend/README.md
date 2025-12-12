@@ -6,9 +6,15 @@ API REST desenvolvida com Node.js e Express para o sistema de gestão de serviç
 
 ### Pré-requisitos
 
-- Node.js 20+ e npm
+- **Node.js 20+** (OBRIGATÓRIO - Node 18 não é suportado)
+- npm 9+
 - PostgreSQL 14+
 - (Opcional) Redis para cache
+
+**⚠️ IMPORTANTE**: Este projeto requer Node.js 20 ou superior. Para verificar sua versão:
+```bash
+node --version  # Deve mostrar v20.x.x ou superior
+```
 
 ### Instalação
 
@@ -141,6 +147,21 @@ Veja schema completo em [/docs/DATABASE.md](../docs/DATABASE.md)
 ```bash
 # Na raiz do projeto
 docker-compose up -d
+```
+
+**⚠️ Se o container ficar reiniciando com erro de versão do Node.js**:
+
+```bash
+# Isso acontece quando você tem uma imagem antiga com Node 18
+# Solução: Reconstruir a imagem do zero
+
+docker-compose down
+docker rmi solid-umbrella-backend:latest
+docker-compose build --no-cache backend
+docker-compose up -d
+
+# Verificar que está usando Node 20+
+docker-compose exec backend node --version
 ```
 
 ### Manual (PM2):
