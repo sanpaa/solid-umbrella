@@ -60,7 +60,7 @@ Sistema web completo e responsivo (mobile-first PWA) para gerenciamento de orden
 ## 🛠️ Stack Tecnológica
 
 ### Backend
-- **Runtime**: Node.js 18+
+- **Runtime**: Node.js 20+
 - **Framework**: Express.js
 - **ORM**: Sequelize
 - **Banco de Dados**: PostgreSQL
@@ -124,7 +124,7 @@ solid-umbrella/
 ## 🚀 Início Rápido
 
 ### Pré-requisitos
-- Node.js 18+ e npm
+- Node.js 20+ e npm
 - PostgreSQL 14+
 - Docker e Docker Compose (opcional)
 
