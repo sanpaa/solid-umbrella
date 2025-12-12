@@ -1,0 +1,195 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Verificar autenticação
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    
+    setLoading(false);
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              🔧 Dashboard - Gestão de Serviços
+            </h1>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                Bem-vindo, <strong>{user?.name}</strong>
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm"
+              >
+                Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-gray-600 text-sm">OS Hoje</h3>
+              <span className="text-2xl">📋</span>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">12</p>
+            <p className="text-sm text-green-600 mt-2">+2 desde ontem</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-gray-600 text-sm">Receita</h3>
+              <span className="text-2xl">💰</span>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">R$ 3.500</p>
+            <p className="text-sm text-green-600 mt-2">+15% este mês</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-gray-600 text-sm">Pendentes</h3>
+              <span className="text-2xl">⏱️</span>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">5</p>
+            <p className="text-sm text-orange-600 mt-2">3 abertos</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-gray-600 text-sm">Técnicos</h3>
+              <span className="text-2xl">👨‍🔧</span>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">2</p>
+            <p className="text-sm text-green-600 mt-2">Ambos disponíveis</p>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Ações Rápidas</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+              <span className="text-3xl mb-2">📋</span>
+              <span className="text-sm font-semibold">Nova OS</span>
+            </button>
+            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+              <span className="text-3xl mb-2">👥</span>
+              <span className="text-sm font-semibold">Novo Cliente</span>
+            </button>
+            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+              <span className="text-3xl mb-2">💰</span>
+              <span className="text-sm font-semibold">Orçamento</span>
+            </button>
+            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+              <span className="text-3xl mb-2">📱</span>
+              <span className="text-sm font-semibold">WhatsApp</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Recent Orders */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Próximas Visitas</h2>
+          <div className="space-y-4">
+            {[
+              { time: '14:00', os: 'OS-2024-0010', client: 'Maria Santos', tech: 'João Técnico', status: 'assigned' },
+              { time: '15:30', os: 'OS-2024-0011', client: 'José Silva', tech: 'Pedro Silva', status: 'in_progress' },
+              { time: '17:00', os: 'OS-2024-0012', client: 'Ana Costa', tech: 'João Técnico', status: 'assigned' },
+            ].map((visit, idx) => (
+              <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <div className="flex items-center space-x-4">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600">{visit.time}</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">{visit.os}</div>
+                    <div className="text-sm text-gray-600">{visit.client}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-gray-600">{visit.tech}</div>
+                  <div className={`text-xs px-2 py-1 rounded mt-1 ${
+                    visit.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {visit.status === 'in_progress' ? 'Em andamento' : 'Agendado'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="font-semibold text-blue-900 mb-2">ℹ️ Sistema em Demonstração</h3>
+          <p className="text-blue-800 text-sm mb-4">
+            Este é um dashboard de demonstração. Para implementar funcionalidades completas, 
+            desenvolva os componentes conforme a documentação em <code>/docs</code>.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <strong className="block text-blue-900">Backend:</strong>
+              <span className="text-blue-700">✓ Estrutura completa</span>
+            </div>
+            <div>
+              <strong className="block text-blue-900">Banco:</strong>
+              <span className="text-blue-700">✓ Schema + Seeds</span>
+            </div>
+            <div>
+              <strong className="block text-blue-900">WhatsApp:</strong>
+              <span className="text-blue-700">✓ Baileys integrado</span>
+            </div>
+            <div>
+              <strong className="block text-blue-900">Docs:</strong>
+              <span className="text-blue-700">✓ Completa</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
