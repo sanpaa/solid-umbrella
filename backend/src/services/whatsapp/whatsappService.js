@@ -244,6 +244,9 @@ class WhatsAppService {
     if (this.sock) {
       await this.sock.logout();
       this.isConnected = false;
+      this.phoneNumber = null;
+      this.currentQR = null;
+      this.notifyQRListeners(null);
       logger.info('🔌 WhatsApp desconectado');
     }
   }

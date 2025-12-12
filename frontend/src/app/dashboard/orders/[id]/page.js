@@ -38,6 +38,9 @@ export default function OrderDetailPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [newStatus, setNewStatus] = useState('');
   const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState(null);
+  const [actionSuccess, setActionSuccess] = useState(null);
 
   useEffect(() => {
     if (isAuth && orderId) {
@@ -71,35 +74,53 @@ export default function OrderDetailPage() {
 
   const handleStatusUpdate = async () => {
     if (!newStatus) {
-      alert('Por favor, selecione um status');
+      setActionError('Por favor, selecione um status');
       return;
     }
 
+    setActionLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+
     try {
       await ordersApi.updateStatus(orderId, newStatus);
-      alert('Status atualizado com sucesso!');
-      setShowStatusModal(false);
-      fetchOrderData();
+      setActionSuccess('Status atualizado com sucesso!');
+      setTimeout(() => {
+        setShowStatusModal(false);
+        setActionSuccess(null);
+        fetchOrderData();
+      }, 1500);
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Erro ao atualizar status');
+      setActionError('Erro ao atualizar status. Tente novamente.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleAssignTechnician = async () => {
     if (!selectedTechnicianId) {
-      alert('Por favor, selecione um técnico');
+      setActionError('Por favor, selecione um técnico');
       return;
     }
 
+    setActionLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+
     try {
       await ordersApi.assignTechnician(orderId, selectedTechnicianId);
-      alert('Técnico atribuído com sucesso!');
-      setShowAssignModal(false);
-      fetchOrderData();
+      setActionSuccess('Técnico atribuído com sucesso!');
+      setTimeout(() => {
+        setShowAssignModal(false);
+        setActionSuccess(null);
+        fetchOrderData();
+      }, 1500);
     } catch (err) {
       console.error('Error assigning technician:', err);
-      alert('Erro ao atribuir técnico');
+      setActionError('Erro ao atribuir técnico. Tente novamente.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -378,6 +399,7 @@ export default function OrderDetailPage() {
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              disabled={actionLoading}
             >
               <option value="">Selecione um status</option>
               <option value="open">Aberto</option>
@@ -387,18 +409,34 @@ export default function OrderDetailPage() {
               <option value="completed">Concluído</option>
               <option value="cancelled">Cancelado</option>
             </select>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionError}
+              </div>
+            )}
+            {actionSuccess && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionSuccess}
+              </div>
+            )}
             <div className="flex gap-2">
               <button
-                onClick={() => setShowStatusModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                onClick={() => {
+                  setShowStatusModal(false);
+                  setActionError(null);
+                  setActionSuccess(null);
+                }}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleStatusUpdate}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                Atualizar
+                {actionLoading ? 'Atualizando...' : 'Atualizar'}
               </button>
             </div>
           </div>
@@ -414,6 +452,7 @@ export default function OrderDetailPage() {
               value={selectedTechnicianId}
               onChange={(e) => setSelectedTechnicianId(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              disabled={actionLoading}
             >
               <option value="">Selecione um técnico</option>
               {technicians.map((tech) => (
@@ -422,18 +461,34 @@ export default function OrderDetailPage() {
                 </option>
               ))}
             </select>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionError}
+              </div>
+            )}
+            {actionSuccess && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionSuccess}
+              </div>
+            )}
             <div className="flex gap-2">
               <button
-                onClick={() => setShowAssignModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                onClick={() => {
+                  setShowAssignModal(false);
+                  setActionError(null);
+                  setActionSuccess(null);
+                }}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleAssignTechnician}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                Atribuir
+                {actionLoading ? 'Atribuindo...' : 'Atribuir'}
               </button>
             </div>
           </div>
