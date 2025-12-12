@@ -65,6 +65,59 @@ router.post('/send', authenticate, authorize('admin', 'manager'), async (req, re
 });
 
 /**
+ * GET /api/v1/whatsapp/qr
+ * Obter QR code para pareamento
+ */
+router.get('/qr', authenticate, async (req, res, next) => {
+  try {
+    const whatsapp = getWhatsAppService();
+    const qr = whatsapp.getCurrentQR();
+    const info = whatsapp.getConnectionInfo();
+
+    if (!qr && info.connected) {
+      return res.json({
+        success: true,
+        data: {
+          qrCode: null,
+          connected: true,
+          phoneNumber: info.phoneNumber,
+        },
+        message: 'WhatsApp já está conectado',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        qrCode: qr,
+        connected: info.connected,
+        phoneNumber: info.phoneNumber,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/v1/whatsapp/disconnect
+ * Desconectar WhatsApp
+ */
+router.post('/disconnect', authenticate, authorize('admin'), async (req, res, next) => {
+  try {
+    const whatsapp = getWhatsAppService();
+    await whatsapp.disconnect();
+
+    res.json({
+      success: true,
+      message: 'WhatsApp desconectado com sucesso',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * GET /api/v1/whatsapp/logs
  * Obter histórico de mensagens
  */
