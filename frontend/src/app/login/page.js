@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/config';
+import { isAuthenticated, saveAuthData } from '@/lib/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,13 +12,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      console.log('Fazendo login em:', `${API_URL}/auth/login`);
+      
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,24 +35,37 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      // Check if response is ok
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Erro: Endpoint de login não encontrado. Verifique se o backend está rodando na porta 5000.');
+          setLoading(false);
+          return;
+        }
+        
+        if (response.status === 500) {
+          setError('Erro no servidor. Verifique os logs do backend.');
+          setLoading(false);
+          return;
+        }
+      }
+
       const data = await response.json();
 
       if (!data.success) {
-        setError(data.error?.message || 'Erro ao fazer login');
+        setError(data.error?.message || 'Email ou senha incorretos');
         setLoading(false);
         return;
       }
 
-      // Salvar token no localStorage
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('refreshToken', data.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      // Save authentication data
+      saveAuthData(data.data.token, data.data.refreshToken, data.data.user);
 
-      // Redirecionar para dashboard
+      // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
-      console.error('Erro:', err);
-      setError('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
+      console.error('Erro ao fazer login:', err);
+      setError(`Erro ao conectar com o servidor (${API_URL}). Verifique se o backend está rodando.`);
       setLoading(false);
     }
   };

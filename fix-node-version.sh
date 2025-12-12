@@ -5,10 +5,16 @@
 #
 # Usage: ./fix-node-version.sh
 #
+# What this script does:
+# 1. Stops all running containers
+# 2. Removes old Docker images
+# 3. Rebuilds images from scratch (no cache)
+# 4. Starts containers with correct Node.js 20+
+#
 # Note: This script uses a fixed 5-second wait time for containers to start.
 # If your system is slow, you may need to check logs manually after running.
 
-set -e
+set -e  # Exit on error
 
 echo "================================================"
 echo "🔧 Fixing Node.js Version Mismatch"
@@ -33,18 +39,33 @@ docker-compose down
 echo ""
 
 # Remove old images
-echo "🗑️  Removing old backend image..."
+echo "🗑️  Removing old images..."
+REMOVED_ANY=false
+
 if docker images | grep -q "solid-umbrella-backend"; then
     docker rmi solid-umbrella-backend:latest 2>/dev/null || true
-    echo "   ✅ Old image removed"
-else
-    echo "   ℹ️  No old image found"
+    echo "   ✅ Backend image removed"
+    REMOVED_ANY=true
+fi
+
+if docker images | grep -q "solid-umbrella-frontend"; then
+    docker rmi solid-umbrella-frontend:latest 2>/dev/null || true
+    echo "   ✅ Frontend image removed"
+    REMOVED_ANY=true
+fi
+
+if [ "$REMOVED_ANY" = false ]; then
+    echo "   ℹ️  No old images found (first time setup?)"
 fi
 echo ""
 
 # Rebuild without cache
-echo "🔨 Rebuilding backend image (this may take a few minutes)..."
+echo "🔨 Rebuilding images (this may take a few minutes)..."
+echo "   Building backend..."
 docker-compose build --no-cache backend
+echo "   Building frontend..."
+docker-compose build --no-cache frontend
+echo "   ✅ All images rebuilt"
 echo ""
 
 # Start containers
