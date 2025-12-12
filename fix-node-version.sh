@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to fix Node.js version mismatch in Docker containers
 # This script rebuilds the Docker images to use Node.js 20+
@@ -54,8 +54,8 @@ echo ""
 
 # Check Node version
 echo "📊 Verifying Node.js version..."
-if docker-compose exec -T backend node --version; then
-    NODE_VERSION=$(docker-compose exec -T backend node --version)
+NODE_VERSION=$(docker-compose exec -T backend node --version 2>&1)
+if [ $? -eq 0 ]; then
     echo ""
     echo "✅ Backend is now using: $NODE_VERSION"
     echo ""
