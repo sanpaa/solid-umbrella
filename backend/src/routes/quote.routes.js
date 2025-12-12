@@ -1,30 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
+const quoteController = require('../controllers/quote.controller');
 
-// Placeholder para rotas de orçamentos
-router.get('/', authenticate, async (req, res) => {
-  res.json({ success: true, data: { quotes: [] }, message: 'Implementar: Listar orçamentos' });
-});
-
-router.get('/:id', authenticate, async (req, res) => {
-  res.json({ success: true, data: {}, message: `Implementar: Obter orçamento ${req.params.id}` });
-});
-
-router.post('/', authenticate, authorize('admin', 'manager'), async (req, res) => {
-  res.json({ success: true, data: {}, message: 'Implementar: Criar orçamento' });
-});
-
-router.patch('/:id/approve', async (req, res) => {
-  res.json({ success: true, message: `Implementar: Aprovar orçamento ${req.params.id}` });
-});
-
-router.patch('/:id/reject', authenticate, async (req, res) => {
-  res.json({ success: true, message: `Implementar: Rejeitar orçamento ${req.params.id}` });
-});
-
-router.get('/:id/pdf', authenticate, async (req, res) => {
-  res.json({ success: true, message: `Implementar: Gerar PDF orçamento ${req.params.id}` });
-});
+router.get('/', authenticate, quoteController.listQuotes);
+router.get('/:id', authenticate, quoteController.getQuote);
+router.post('/', authenticate, authorize('admin', 'manager'), quoteController.createQuote);
+router.patch('/:id/approve', authenticate, quoteController.approveQuote);
+router.patch('/:id/reject', authenticate, quoteController.rejectQuote);
+router.post('/:id/send', authenticate, authorize('admin', 'manager'), quoteController.sendQuote);
 
 module.exports = router;

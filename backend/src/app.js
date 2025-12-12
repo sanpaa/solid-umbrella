@@ -17,6 +17,7 @@ const financialRoutes = require('./routes/financial.routes');
 const technicianRoutes = require('./routes/technician.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const whatsappRoutes = require('./routes/whatsapp.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
@@ -102,6 +103,7 @@ app.use(`${API_PREFIX}/financial`, financialRoutes);
 app.use(`${API_PREFIX}/technicians`, technicianRoutes);
 app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
 app.use(`${API_PREFIX}/whatsapp`, whatsappRoutes);
+app.use(`${API_PREFIX}/users`, userRoutes);
 
 // ============================================================================
 // 404 HANDLER
