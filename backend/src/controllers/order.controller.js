@@ -151,8 +151,8 @@ exports.createOrder = async (req, res) => {
       equipment,
       problem,
       priority: priority || 'normal',
-      scheduled_date,
-      estimated_cost,
+      scheduled_date: scheduled_date === '' ? null : scheduled_date,
+      estimated_cost: estimated_cost === '' ? null : estimated_cost,
       notes,
       created_by: req.user.id,
       status: 'open',
@@ -191,6 +191,17 @@ exports.updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    // Sanitize date fields - convert empty strings to null
+    if (updates.scheduled_date === '') {
+      updates.scheduled_date = null;
+    }
+    if (updates.started_at === '') {
+      updates.started_at = null;
+    }
+    if (updates.completed_at === '') {
+      updates.completed_at = null;
+    }
 
     const order = await ServiceOrder.findByPk(id);
 
