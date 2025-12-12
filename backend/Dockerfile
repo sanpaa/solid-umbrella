@@ -11,8 +11,8 @@ RUN apk add --no-cache \
 # Copiar package files
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm ci --only=production
+# Instalar dependências (incluindo dev dependencies para nodemon)
+RUN npm ci
 
 # Copiar código fonte
 COPY . .
