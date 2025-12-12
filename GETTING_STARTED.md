@@ -235,6 +235,12 @@ npm error    You are using Node.js 18.x.x
 
 **Solução**: Reconstruir as imagens Docker do zero:
 
+**Opção 1: Script automático (Mais fácil)**
+```bash
+./fix-node-version.sh
+```
+
+**Opção 2: Comandos manuais**
 ```bash
 # 1. Parar e remover containers antigos
 docker-compose down

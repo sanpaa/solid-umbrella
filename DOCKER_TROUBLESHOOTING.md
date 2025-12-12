@@ -10,6 +10,14 @@ npm error    You are using Node.js 18.x.x
 ```
 
 ### Solução Rápida
+
+**Opção 1: Script automático (Recomendado)**
+```bash
+# Execute o script que faz tudo para você:
+./fix-node-version.sh
+```
+
+**Opção 2: Comandos manuais**
 ```bash
 # Copie e cole este bloco inteiro:
 docker-compose down && \
