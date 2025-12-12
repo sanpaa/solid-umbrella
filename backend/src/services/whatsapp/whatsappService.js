@@ -20,6 +20,7 @@ class WhatsAppService {
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 5000; // Start with 5 seconds
+    this.maxReconnectDelay = 160000; // Maximum 160 seconds
     this.isReconnecting = false;
   }
 
@@ -86,7 +87,11 @@ class WhatsAppService {
             
             if (this.reconnectAttempts < this.maxReconnectAttempts) {
               this.reconnectAttempts++;
-              const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1); // Exponential backoff
+              // Exponential backoff with maximum cap: 5s, 10s, 20s, 40s, 80s (capped at 160s)
+              const delay = Math.min(
+                this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
+                this.maxReconnectDelay
+              );
               
               logger.info(`🔄 Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts} em ${delay/1000}s...`);
               
