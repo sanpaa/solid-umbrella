@@ -12,7 +12,7 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Instalar dependências (incluindo dev dependencies para nodemon)
-RUN npm ci
+RUN npm install
 
 # Copiar código fonte
 COPY . .
