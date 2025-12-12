@@ -6,7 +6,7 @@ Interface web responsiva desenvolvida com Next.js e React para o sistema de gest
 
 ### Pré-requisitos
 
-- Node.js 18+ e npm
+- Node.js 20+ e npm
 - Backend rodando em `http://localhost:5000`
 
 ### Instalação

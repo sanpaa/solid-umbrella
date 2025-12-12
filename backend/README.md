@@ -6,7 +6,7 @@ API REST desenvolvida com Node.js e Express para o sistema de gestão de serviç
 
 ### Pré-requisitos
 
-- Node.js 18+ e npm
+- Node.js 20+ e npm
 - PostgreSQL 14+
 - (Opcional) Redis para cache
 

@@ -79,8 +79,8 @@ docker-compose up -d
 # Atualizar sistema
 sudo apt update && sudo apt upgrade -y
 
-# Instalar Node.js 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# Instalar Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 
 # Instalar PostgreSQL 14
