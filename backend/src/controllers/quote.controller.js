@@ -139,7 +139,7 @@ exports.createQuote = async (req, res) => {
       subtotal,
       discount: discount || 0,
       total,
-      valid_until: valid_until || null,
+      valid_until: valid_until === '' ? null : valid_until,
       notes,
       created_by: req.user.id,
       status: 'pending',
