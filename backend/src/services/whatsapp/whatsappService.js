@@ -17,6 +17,10 @@ class WhatsAppService {
     this.authFolder = path.join(__dirname, '../../../auth_info');
     this.isConnected = false;
     this.phoneNumber = null;
+    this.reconnectAttempts = 0;
+    this.maxReconnectAttempts = 5;
+    this.reconnectDelay = 5000; // Start with 5 seconds
+    this.isReconnecting = false;
   }
 
   async initialize() {
@@ -77,16 +81,42 @@ class WhatsAppService {
 
           logger.warn('❌ Conexão fechada. Reconectando:', shouldReconnect);
 
-          if (shouldReconnect) {
-            await this.initialize();
-          } else {
+          if (shouldReconnect && !this.isReconnecting) {
+            this.isReconnecting = true;
+            
+            if (this.reconnectAttempts < this.maxReconnectAttempts) {
+              this.reconnectAttempts++;
+              const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1); // Exponential backoff
+              
+              logger.info(`🔄 Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts} em ${delay/1000}s...`);
+              
+              setTimeout(async () => {
+                try {
+                  this.isReconnecting = false;
+                  await this.initialize();
+                } catch (error) {
+                  logger.error('❌ Erro na reconexão:', error.message);
+                  this.isReconnecting = false;
+                }
+              }, delay);
+            } else {
+              logger.error('❌ Máximo de tentativas de reconexão atingido. WhatsApp Service desabilitado.');
+              logger.warn('⚠️  Reinicie o servidor para tentar novamente.');
+              this.isConnected = false;
+              this.isReconnecting = false;
+            }
+          } else if (!shouldReconnect) {
             this.isConnected = false;
+            this.reconnectAttempts = 0;
+            this.isReconnecting = false;
             logger.warn('⚠️  Você foi desconectado. Escaneie o QR Code novamente.');
           }
         }
 
         if (connection === 'open') {
           this.isConnected = true;
+          this.reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+          this.isReconnecting = false;
           this.phoneNumber = this.sock.user.id.split(':')[0];
           logger.info('✅ Conectado ao WhatsApp!');
           logger.info(`📞 Número: ${this.phoneNumber}`);
