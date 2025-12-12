@@ -32,7 +32,11 @@ export default function QuoteDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   useEffect(() => {
     if (isAuth && quoteId) {
@@ -55,49 +59,55 @@ export default function QuoteDetailPage() {
   };
 
   const handleSendQuote = async () => {
-    if (!confirm('Deseja enviar este orçamento para o cliente via WhatsApp?')) {
-      return;
-    }
+    setActionLoading(true);
+    setActionError(null);
 
     try {
       await quotesApi.send(quoteId);
-      alert('Orçamento enviado com sucesso!');
+      setShowSendModal(false);
       fetchQuoteData();
     } catch (err) {
       console.error('Error sending quote:', err);
-      alert('Erro ao enviar orçamento');
+      setActionError('Erro ao enviar orçamento. Tente novamente.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleApproveQuote = async () => {
-    if (!confirm('Deseja aprovar este orçamento? Uma OS será criada automaticamente.')) {
-      return;
-    }
+    setActionLoading(true);
+    setActionError(null);
 
     try {
       await quotesApi.approve(quoteId);
-      alert('Orçamento aprovado e OS criada com sucesso!');
+      setShowApproveModal(false);
       fetchQuoteData();
     } catch (err) {
       console.error('Error approving quote:', err);
-      alert('Erro ao aprovar orçamento');
+      setActionError('Erro ao aprovar orçamento. Tente novamente.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleRejectQuote = async () => {
     if (!rejectionReason.trim()) {
-      alert('Por favor, informe o motivo da rejeição');
+      setActionError('Por favor, informe o motivo da rejeição');
       return;
     }
 
+    setActionLoading(true);
+    setActionError(null);
+
     try {
       await quotesApi.reject(quoteId, rejectionReason);
-      alert('Orçamento rejeitado');
       setShowRejectModal(false);
       fetchQuoteData();
     } catch (err) {
       console.error('Error rejecting quote:', err);
-      alert('Erro ao rejeitar orçamento');
+      setActionError('Erro ao rejeitar orçamento. Tente novamente.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -155,7 +165,7 @@ export default function QuoteDetailPage() {
             <div className="flex gap-2">
               {quote.status === 'pending' && (
                 <button
-                  onClick={handleSendQuote}
+                  onClick={() => setShowSendModal(true)}
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
                 >
                   📱 Enviar WhatsApp
@@ -164,7 +174,7 @@ export default function QuoteDetailPage() {
               {quote.status === 'sent' && (
                 <>
                   <button
-                    onClick={handleApproveQuote}
+                    onClick={() => setShowApproveModal(true)}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                   >
                     ✓ Aprovar
@@ -396,6 +406,78 @@ export default function QuoteDetailPage() {
         </div>
       </div>
 
+      {/* Send Modal */}
+      {showSendModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Enviar Orçamento</h2>
+            <p className="text-gray-700 mb-4">
+              Deseja enviar este orçamento para o cliente via WhatsApp?
+            </p>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionError}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowSendModal(false);
+                  setActionError(null);
+                }}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSendQuote}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {actionLoading ? 'Enviando...' : 'Enviar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approve Modal */}
+      {showApproveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Aprovar Orçamento</h2>
+            <p className="text-gray-700 mb-4">
+              Deseja aprovar este orçamento? Uma Ordem de Serviço será criada automaticamente.
+            </p>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionError}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowApproveModal(false);
+                  setActionError(null);
+                }}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleApproveQuote}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {actionLoading ? 'Aprovando...' : 'Aprovar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -407,19 +489,31 @@ export default function QuoteDetailPage() {
               placeholder="Informe o motivo da rejeição..."
               rows="4"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              disabled={actionLoading}
             />
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {actionError}
+              </div>
+            )}
             <div className="flex gap-2">
               <button
-                onClick={() => setShowRejectModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setActionError(null);
+                  setRejectionReason('');
+                }}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleRejectQuote}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
-                Rejeitar
+                {actionLoading ? 'Rejeitando...' : 'Rejeitar'}
               </button>
             </div>
           </div>

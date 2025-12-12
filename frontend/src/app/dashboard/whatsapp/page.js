@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { useAuth } from '@/lib/useAuth';
 import DashboardLayout from '@/components/DashboardLayout';
 import { whatsappApi } from '@/lib/api';
+import QRCode from 'qrcode';
 
 export default function WhatsAppPage() {
   const { loading: authLoading, isAuth } = useAuth(true);
@@ -16,6 +16,8 @@ export default function WhatsAppPage() {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(false);
+  const [sendError, setSendError] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -42,9 +44,26 @@ export default function WhatsAppPage() {
       setConnectionStatus(statusResponse.data.data);
       
       if (qrResponse.data.data.qrCode) {
-        setQrCode(qrResponse.data.data.qrCode);
+        const qrText = qrResponse.data.data.qrCode;
+        setQrCode(qrText);
+        
+        // Generate QR code locally as data URL
+        try {
+          const dataUrl = await QRCode.toDataURL(qrText, {
+            width: 300,
+            margin: 2,
+            color: {
+              dark: '#000000',
+              light: '#FFFFFF',
+            },
+          });
+          setQrDataUrl(dataUrl);
+        } catch (qrError) {
+          console.error('Error generating QR code:', qrError);
+        }
       } else {
         setQrCode(null);
+        setQrDataUrl(null);
       }
       
       setError(null);
@@ -60,12 +79,13 @@ export default function WhatsAppPage() {
     e.preventDefault();
     
     if (!phoneNumber || !message) {
-      alert('Por favor, preencha o número e a mensagem');
+      setSendError('Por favor, preencha o número e a mensagem');
       return;
     }
 
     setSending(true);
     setSendSuccess(false);
+    setSendError(null);
 
     try {
       await whatsappApi.sendMessage(phoneNumber, message);
@@ -74,24 +94,29 @@ export default function WhatsAppPage() {
       setTimeout(() => setSendSuccess(false), 3000);
     } catch (err) {
       console.error('Error sending message:', err);
-      alert('Erro ao enviar mensagem');
+      setSendError('Erro ao enviar mensagem. Verifique se o WhatsApp está conectado.');
     } finally {
       setSending(false);
     }
   };
 
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [disconnectError, setDisconnectError] = useState(null);
+
   const handleDisconnect = async () => {
-    if (!confirm('Deseja realmente desconectar o WhatsApp?')) {
-      return;
-    }
+    setDisconnecting(true);
+    setDisconnectError(null);
 
     try {
       await whatsappApi.disconnect();
-      alert('WhatsApp desconectado com sucesso');
+      setShowDisconnectModal(false);
       fetchStatus();
     } catch (err) {
       console.error('Error disconnecting:', err);
-      alert('Erro ao desconectar');
+      setDisconnectError('Erro ao desconectar. Tente novamente.');
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -141,7 +166,7 @@ export default function WhatsAppPage() {
                   </div>
                   {connectionStatus?.connected && (
                     <button
-                      onClick={handleDisconnect}
+                      onClick={() => setShowDisconnectModal(true)}
                       className="text-red-600 hover:text-red-800 text-sm font-medium"
                     >
                       Desconectar
@@ -174,14 +199,18 @@ export default function WhatsAppPage() {
                     </div>
                     
                     <div className="bg-white border-2 border-gray-300 rounded-lg p-4 flex justify-center">
-                      <Image
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`}
-                        alt="QR Code WhatsApp"
-                        width={256}
-                        height={256}
-                        className="w-64 h-64"
-                        unoptimized
-                      />
+                      {qrDataUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={qrDataUrl}
+                          alt="QR Code WhatsApp"
+                          className="w-64 h-64"
+                        />
+                      ) : (
+                        <div className="w-64 h-64 flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        </div>
+                      )}
                     </div>
                     
                     <p className="text-sm text-gray-600 text-center">
@@ -253,6 +282,12 @@ export default function WhatsAppPage() {
                   </div>
                 )}
 
+                {sendError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                    ✗ {sendError}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={sending}
@@ -296,6 +331,42 @@ export default function WhatsAppPage() {
           </div>
         </div>
       </div>
+
+      {/* Disconnect Modal */}
+      {showDisconnectModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Desconectar WhatsApp</h2>
+            <p className="text-gray-700 mb-4">
+              Tem certeza que deseja desconectar o WhatsApp? Você precisará escanear o QR Code novamente para reconectar.
+            </p>
+            {disconnectError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mb-4">
+                {disconnectError}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowDisconnectModal(false);
+                  setDisconnectError(null);
+                }}
+                disabled={disconnecting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDisconnect}
+                disabled={disconnecting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {disconnecting ? 'Desconectando...' : 'Desconectar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

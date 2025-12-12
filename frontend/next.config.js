@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['localhost', 'api.qrserver.com'],
+    domains: ['localhost'],
     unoptimized: process.env.NODE_ENV === 'development',
   },
   // PWA Configuration (opcional - requer next-pwa)
