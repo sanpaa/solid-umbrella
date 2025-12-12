@@ -25,6 +25,8 @@ export default function LoginPage() {
     setError('');
 
     try {
+      console.log('Fazendo login em:', `${API_URL}/auth/login`);
+      
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -33,10 +35,25 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      // Check if response is ok
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Erro: Endpoint de login não encontrado. Verifique se o backend está rodando na porta 5000.');
+          setLoading(false);
+          return;
+        }
+        
+        if (response.status === 500) {
+          setError('Erro no servidor. Verifique os logs do backend.');
+          setLoading(false);
+          return;
+        }
+      }
+
       const data = await response.json();
 
       if (!data.success) {
-        setError(data.error?.message || 'Erro ao fazer login');
+        setError(data.error?.message || 'Email ou senha incorretos');
         setLoading(false);
         return;
       }
@@ -47,8 +64,8 @@ export default function LoginPage() {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
-      console.error('Erro:', err);
-      setError('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
+      console.error('Erro ao fazer login:', err);
+      setError(`Erro ao conectar com o servidor (${API_URL}). Verifique se o backend está rodando.`);
       setLoading(false);
     }
   };
