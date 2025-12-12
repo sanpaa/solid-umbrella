@@ -7,7 +7,6 @@ export default function DashboardPage() {
   const handleLogout = useLogout();
 
   // Show loading while checking authentication
-  // Show loading while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
