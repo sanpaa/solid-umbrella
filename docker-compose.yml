@@ -23,10 +23,13 @@ services:
       retries: 5
 
   # Backend API (Node.js + Express)
+  # IMPORTANT: Requires Node.js 20+ due to @whiskeysockets/baileys dependency
+  # If you see "Node.js version mismatch" errors, run: ./fix-node-version.sh
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: solid-umbrella-backend:latest
     container_name: service_management_api
     restart: unless-stopped
     environment:
@@ -58,10 +61,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: solid-umbrella-frontend:latest
     container_name: service_management_web
     restart: unless-stopped
     environment:
       NODE_ENV: development
+      # Use backend service name for server-side, localhost for client-side browser requests
       NEXT_PUBLIC_API_URL: http://localhost:5000/api/v1
     ports:
       - "3000:3000"

@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/config';
+import { isAuthenticated, saveAuthData } from '@/lib/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,13 +12,20 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,12 +41,10 @@ export default function LoginPage() {
         return;
       }
 
-      // Salvar token no localStorage
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('refreshToken', data.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      // Save authentication data
+      saveAuthData(data.data.token, data.data.refreshToken, data.data.user);
 
-      // Redirecionar para dashboard
+      // Redirect to dashboard
       router.push('/dashboard');
     } catch (err) {
       console.error('Erro:', err);

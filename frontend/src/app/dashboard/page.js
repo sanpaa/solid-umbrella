@@ -1,46 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth, useLogout } from '@/lib/useAuth';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, isAuth } = useAuth(true);
+  const handleLogout = useLogout();
 
-  useEffect(() => {
-    // Verificar autenticação
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-    
-    setLoading(false);
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    router.push('/login');
-  };
-
+  // Show loading while checking authentication
+  // Show loading while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando...</p>
+          <p className="text-gray-600">Verificando autenticação...</p>
         </div>
       </div>
     );
+  }
+
+  // If not authenticated, don't render anything (redirect will happen)
+  if (!isAuth) {
+    return null;
   }
 
   return (
