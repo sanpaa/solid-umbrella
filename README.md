@@ -214,6 +214,8 @@ Veja mais detalhes em: [docs/WHATSAPP_INTEGRATION.md](docs/WHATSAPP_INTEGRATION.
 
 ## 📚 Documentação Completa
 
+- **[🚀 Guia de Início Rápido](GETTING_STARTED.md)**: Colocar no ar em 10 minutos
+- **[🐳 Docker Troubleshooting](DOCKER_TROUBLESHOOTING.md)**: Solução rápida para problemas comuns
 - **[Arquitetura do Sistema](docs/ARCHITECTURE.md)**: Diagramas e explicações técnicas
 - **[Modelo de Banco de Dados](docs/DATABASE.md)**: Schema completo e relacionamentos
 - **[Documentação da API](docs/API.md)**: Todos os endpoints REST

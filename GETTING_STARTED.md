@@ -172,8 +172,9 @@ docker-compose logs -f backend
 # Entrar no container
 docker-compose exec backend sh
 
-# Reconstruir após mudanças
-docker-compose build
+# Reconstruir após mudanças no Dockerfile ou package.json
+docker-compose down
+docker-compose build --no-cache
 docker-compose up -d
 ```
 
@@ -221,6 +222,47 @@ npm start
 ```
 
 ## 🐛 Solução de Problemas
+
+### ⚠️ Erro: Node.js version mismatch (MAIS COMUM)
+
+**Sintoma**: Container reiniciando constantemente com erro:
+```
+npm error ❌ This package requires Node.js 20+ to run reliably.
+npm error    You are using Node.js 18.x.x
+```
+
+**Causa**: Você está usando uma imagem Docker antiga que foi construída com Node.js 18, mas o código agora requer Node.js 20+.
+
+**Solução**: Reconstruir as imagens Docker do zero:
+
+**Opção 1: Script automático (Mais fácil)**
+```bash
+./fix-node-version.sh
+```
+
+**Opção 2: Comandos manuais**
+```bash
+# 1. Parar e remover containers antigos
+docker-compose down
+
+# 2. Remover a imagem antiga (IMPORTANTE!)
+docker rmi solid-umbrella-backend:latest
+
+# 3. Reconstruir sem cache
+docker-compose build --no-cache backend
+
+# 4. Iniciar novamente
+docker-compose up -d
+
+# 5. Verificar se está funcionando
+docker-compose logs -f backend
+```
+
+**Verificar a versão do Node após rebuild**:
+```bash
+docker-compose exec backend node --version
+# Deve mostrar: v20.x.x
+```
 
 ### Porta já está em uso
 

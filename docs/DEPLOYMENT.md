@@ -436,6 +436,61 @@ docker exec -i postgres psql -U postgres service_management < backup.sql
 
 ## 🚨 Troubleshooting
 
+### ⚠️ Container reiniciando constantemente - Node.js version mismatch
+
+**Sintoma**: O container `service_management_api` fica com status "Restarting" e os logs mostram:
+```
+npm error ❌ This package requires Node.js 20+ to run reliably.
+npm error    You are using Node.js 18.x.x
+```
+
+**Causa**: Você está usando uma imagem Docker antiga construída com Node.js 18, mas o código atual requer Node.js 20+.
+
+**Solução Completa**:
+
+```bash
+# 1. Parar todos os containers
+docker-compose down
+
+# 2. Remover a imagem antiga do backend
+docker rmi solid-umbrella-backend:latest
+# Ou remover todas as imagens antigas:
+docker image prune -a
+
+# 3. Reconstruir sem cache (IMPORTANTE o --no-cache!)
+docker-compose build --no-cache backend
+
+# 4. Iniciar novamente
+docker-compose up -d
+
+# 5. Verificar que está usando Node 20+
+docker-compose exec backend node --version
+# Deve mostrar: v20.x.x ou superior
+
+# 6. Verificar os logs
+docker-compose logs -f backend
+```
+
+**Verificação adicional**:
+```bash
+# Ver todas as imagens Docker
+docker images | grep solid-umbrella
+
+# Se houver múltiplas versões, remover todas
+docker rmi $(docker images -q solid-umbrella-backend)
+
+# Reconstruir do zero
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+**Prevenção**: Sempre que o Dockerfile ou package.json mudar, reconstrua:
+```bash
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
 ### Backend não conecta ao banco
 
 ```bash
