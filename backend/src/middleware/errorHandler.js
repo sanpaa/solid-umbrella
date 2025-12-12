@@ -119,7 +119,7 @@ function errorHandler(err, req, res, next) {
     error: {
       code: 'INTERNAL_SERVER_ERROR',
       message,
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+      ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
     },
     timestamp: new Date().toISOString(),
   });

@@ -4,6 +4,9 @@
 -- ============================================================================
 -- USUÁRIOS
 -- Senha padrão para todos: "senha123" (hash bcrypt com salt rounds 10)
+-- NOTA DE SEGURANÇA: Este hash é apenas para DESENVOLVIMENTO/TESTES
+-- Em produção, os usuários devem ser criados via API (que gerará hashes únicos)
+-- ou você deve gerar um hash único para cada usuário usando bcrypt
 -- ============================================================================
 
 INSERT INTO users (email, password_hash, name, role, is_active) VALUES

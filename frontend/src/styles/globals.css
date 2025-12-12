@@ -7,7 +7,7 @@
   --secondary-color: #10b981;
   --danger-color: #ef4444;
   --warning-color: #f59e0b;
-  --success-color: #10b981;
+  --success-color: var(--secondary-color);
   --background: #ffffff;
   --foreground: #171717;
 }
