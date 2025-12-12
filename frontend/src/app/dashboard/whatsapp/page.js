@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/lib/useAuth';
 import DashboardLayout from '@/components/DashboardLayout';
 import { whatsappApi } from '@/lib/api';
@@ -166,17 +167,20 @@ export default function WhatsAppPage() {
                       <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
                         <li>Abra o WhatsApp no seu celular</li>
                         <li>Toque em Menu (⋮) ou Configurações</li>
-                        <li>Toque em "Aparelhos conectados"</li>
-                        <li>Toque em "Conectar um aparelho"</li>
+                        <li>Toque em &ldquo;Aparelhos conectados&rdquo;</li>
+                        <li>Toque em &ldquo;Conectar um aparelho&rdquo;</li>
                         <li>Escaneie o QR Code abaixo</li>
                       </ol>
                     </div>
                     
                     <div className="bg-white border-2 border-gray-300 rounded-lg p-4 flex justify-center">
-                      <img
+                      <Image
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`}
                         alt="QR Code WhatsApp"
+                        width={256}
+                        height={256}
                         className="w-64 h-64"
+                        unoptimized
                       />
                     </div>
                     
