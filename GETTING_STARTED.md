@@ -84,26 +84,37 @@ Na tela inicial, clique em **"Fazer Login"** e use as credenciais de teste:
 
 ## 📱 Configurar WhatsApp (Opcional)
 
-O sistema já está configurado para usar WhatsApp gratuitamente com **Baileys**.
+O sistema pode usar WhatsApp gratuitamente com **Baileys** (desabilitado por padrão).
 
-### Como conectar:
+### Como habilitar e conectar:
 
-1. Acesse os logs do backend:
+1. Habilite o WhatsApp no `docker-compose.yml`:
+   ```yaml
+   # Em backend → environment, altere:
+   WHATSAPP_ENABLED: "true"
+   ```
+
+2. Reinicie os containers:
+   ```bash
+   docker-compose restart backend
+   ```
+
+3. Acesse os logs do backend:
    ```bash
    docker-compose logs -f backend
    ```
 
-2. Um **QR Code** aparecerá no terminal
+4. Um **QR Code** aparecerá no terminal
 
-3. Abra o WhatsApp no seu celular
+5. Abra o WhatsApp no seu celular
 
-4. Vá em **Configurações → Aparelhos conectados → Conectar um aparelho**
+6. Vá em **Configurações → Aparelhos conectados → Conectar um aparelho**
 
-5. Escaneie o QR Code
+7. Escaneie o QR Code
 
-6. Pronto! O sistema agora pode enviar mensagens automáticas
+8. Pronto! O sistema agora pode enviar mensagens automáticas
 
-**Nota**: A sessão fica salva, você só precisa fazer isso uma vez.
+**Nota**: A sessão fica salva, você só precisa fazer isso uma vez. O WhatsApp está desabilitado por padrão para evitar problemas de reconexão automática.
 
 ## 🎯 Próximos Passos
 
@@ -239,9 +250,10 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
 
 ### WhatsApp não conecta
 
-1. Verifique se Baileys está instalado no backend
-2. Veja logs: `docker-compose logs backend`
-3. Certifique-se que `WHATSAPP_ENABLED=true` no backend/.env
+1. Certifique-se que `WHATSAPP_ENABLED: "true"` no `docker-compose.yml` (desabilitado por padrão)
+2. Verifique se Baileys está instalado no backend
+3. Veja logs: `docker-compose logs backend`
+4. Se estiver tendo problemas de reconexão, reinicie: `docker-compose restart backend`
 
 ### Mais ajuda
 
