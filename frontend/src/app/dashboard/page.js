@@ -1,10 +1,12 @@
 'use client';
 
-import { useAuth, useLogout } from '@/lib/useAuth';
+import { useAuth } from '@/lib/useAuth';
+import { useRouter } from 'next/navigation';
+import DashboardLayout from '@/components/DashboardLayout';
 
 export default function DashboardPage() {
   const { user, loading, isAuth } = useAuth(true);
-  const handleLogout = useLogout();
+  const router = useRouter();
 
   // Show loading while checking authentication
   if (loading) {
@@ -24,31 +26,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">
-              🔧 Dashboard - Gestão de Serviços
-            </h1>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Bem-vindo, <strong>{user?.name}</strong>
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm"
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardLayout>
+      <div className="max-w-7xl mx-auto">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
@@ -92,21 +71,33 @@ export default function DashboardPage() {
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Ações Rápidas</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+            <button 
+              onClick={() => router.push('/dashboard/orders/new')}
+              className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
+            >
               <span className="text-3xl mb-2">📋</span>
-              <span className="text-sm font-semibold">Nova OS</span>
+              <span className="text-sm font-semibold text-gray-900">Nova OS</span>
             </button>
-            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+            <button 
+              onClick={() => router.push('/dashboard/clients/new')}
+              className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
+            >
               <span className="text-3xl mb-2">👥</span>
-              <span className="text-sm font-semibold">Novo Cliente</span>
+              <span className="text-sm font-semibold text-gray-900">Novo Cliente</span>
             </button>
-            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+            <button 
+              onClick={() => router.push('/dashboard/quotes/new')}
+              className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
+            >
               <span className="text-3xl mb-2">💰</span>
-              <span className="text-sm font-semibold">Orçamento</span>
+              <span className="text-sm font-semibold text-gray-900">Orçamento</span>
             </button>
-            <button className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+            <button 
+              onClick={() => router.push('/dashboard/whatsapp')}
+              className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
+            >
               <span className="text-3xl mb-2">📱</span>
-              <span className="text-sm font-semibold">WhatsApp</span>
+              <span className="text-sm font-semibold text-gray-900">WhatsApp</span>
             </button>
           </div>
         </div>
@@ -169,7 +160,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
