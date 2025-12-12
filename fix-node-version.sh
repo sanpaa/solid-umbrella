@@ -2,6 +2,11 @@
 
 # Script to fix Node.js version mismatch in Docker containers
 # This script rebuilds the Docker images to use Node.js 20+
+#
+# Usage: ./fix-node-version.sh
+#
+# Note: This script uses a fixed 5-second wait time for containers to start.
+# If your system is slow, you may need to check logs manually after running.
 
 set -e
 
