@@ -1,0 +1,22 @@
+{
+  "watch": ["src"],
+  "ignore": [
+    "auth_info",
+    "auth_info/**",
+    "logs",
+    "logs/**",
+    "uploads",
+    "uploads/**",
+    "node_modules",
+    "node_modules/**",
+    "*.test.js",
+    "*.spec.js"
+  ],
+  "ext": "js,json",
+  "execMap": {
+    "js": "node"
+  },
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

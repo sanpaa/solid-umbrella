@@ -65,7 +65,6 @@ class WhatsAppService {
       this.sock = makeWASocket({
         version,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: true,
         auth: state,
       });
 
