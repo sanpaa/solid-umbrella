@@ -54,15 +54,14 @@ echo ""
 
 # Check Node version
 echo "📊 Verifying Node.js version..."
-NODE_VERSION=$(docker-compose exec -T backend node --version 2>&1)
-if [ $? -eq 0 ]; then
+if NODE_VERSION=$(docker-compose exec -T backend node --version 2>&1); then
     echo ""
     echo "✅ Backend is now using: $NODE_VERSION"
     echo ""
     
     # Check if it's Node 20+
-    MAJOR_VERSION=$(echo $NODE_VERSION | cut -d'v' -f2 | cut -d'.' -f1)
-    if [ "$MAJOR_VERSION" -ge 20 ]; then
+    MAJOR_VERSION=$(echo "$NODE_VERSION" | cut -d'v' -f2 | cut -d'.' -f1)
+    if [[ "$MAJOR_VERSION" =~ ^[0-9]+$ ]] && [ "$MAJOR_VERSION" -ge 20 ]; then
         echo "✅ SUCCESS! Node.js version is correct (20+)"
     else
         echo "⚠️  WARNING: Node.js version is still below 20"
