@@ -24,17 +24,17 @@ export default function EditClientPage() {
     notes: '',
   });
 
-  useEffect(() => {
-    if (isAuth && clientId) {
-      fetchClient();
-    }
-  }, [isAuth, clientId]);
-
   const fetchClient = async () => {
     try {
       setLoading(true);
       const response = await clientsApi.get(clientId);
-      const client = response.data.data.client;
+      const client = response.data?.data?.client;
+      
+      if (!client) {
+        setError('Cliente não encontrado');
+        return;
+      }
+      
       setFormData({
         name: client.name || '',
         cpf_cnpj: client.cpf_cnpj || '',
@@ -52,6 +52,13 @@ export default function EditClientPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAuth && clientId) {
+      fetchClient();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuth, clientId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,11 +106,19 @@ export default function EditClientPage() {
     );
   }
 
-  if (error && !formData.name) {
+  if (error && loading === false && !formData.name) {
     return (
       <DashboardLayout>
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+          <button
+            onClick={() => router.push('/dashboard/clients')}
+            className="mt-4 text-blue-600 hover:text-blue-800"
+          >
+            ← Voltar para lista de clientes
+          </button>
         </div>
       </DashboardLayout>
     );
