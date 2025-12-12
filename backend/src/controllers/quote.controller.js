@@ -321,12 +321,44 @@ exports.sendQuote = async (req, res) => {
       sent_at: new Date(),
     });
 
-    // Here we would integrate with WhatsApp service
-    // For now, just return success
+    // Generate WhatsApp message with approval link
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const approvalLink = `${frontendUrl}/public/quotes/${quote.id}`;
+    
+    const items = Array.isArray(quote.items) ? quote.items : [];
+    const itemsList = items.map(item => 
+      `• ${item.description} - Qtd: ${item.quantity} - R$ ${parseFloat(item.unit_price).toFixed(2)}`
+    ).join('\n');
+
+    const whatsappMessage = `
+🔧 *Orçamento ${quote.quote_number}*
+
+Olá ${quote.client.name}!
+
+Segue o orçamento solicitado:
+
+${quote.description ? quote.description + '\n\n' : ''}*Itens:*
+${itemsList}
+
+*Subtotal:* R$ ${parseFloat(quote.subtotal).toFixed(2)}
+${quote.discount > 0 ? `*Desconto:* R$ ${parseFloat(quote.discount).toFixed(2)}\n` : ''}*Total:* R$ ${parseFloat(quote.total).toFixed(2)}
+
+${quote.valid_until ? `Válido até: ${new Date(quote.valid_until).toLocaleDateString('pt-BR')}\n\n` : ''}Para aprovar este orçamento, clique no link abaixo:
+${approvalLink}
+
+Ou responda esta mensagem para qualquer dúvida!
+    `.trim();
+
+    // Here we would integrate with WhatsApp service to send the message
+    // For now, return the message that would be sent
     res.json({
       success: true,
-      data: quote,
-      message: 'Orçamento enviado via WhatsApp com sucesso',
+      data: {
+        quote,
+        whatsappMessage,
+        approvalLink,
+      },
+      message: 'Orçamento preparado para envio via WhatsApp',
     });
   } catch (error) {
     console.error('Error sending quote:', error);

@@ -10,4 +10,8 @@ router.patch('/:id/approve', authenticate, quoteController.approveQuote);
 router.patch('/:id/reject', authenticate, quoteController.rejectQuote);
 router.post('/:id/send', authenticate, authorize('admin', 'manager'), quoteController.sendQuote);
 
+// Public endpoint for client quote approval via WhatsApp link
+router.get('/public/:id', quoteController.getQuote);
+router.post('/public/:id/approve', quoteController.approveQuote);
+
 module.exports = router;
