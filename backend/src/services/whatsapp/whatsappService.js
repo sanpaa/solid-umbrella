@@ -22,6 +22,8 @@ class WhatsAppService {
     this.reconnectDelay = 5000; // Start with 5 seconds
     this.maxReconnectDelay = 160000; // Maximum 160 seconds
     this.isReconnecting = false;
+    this.currentQR = null; // Store current QR code
+    this.qrListeners = []; // Listeners for QR updates
   }
 
   async initialize() {
@@ -74,6 +76,10 @@ class WhatsAppService {
         if (qr) {
           logger.info('\n📱 ESCANEIE O QR CODE ABAIXO COM SEU WHATSAPP:\n');
           qrcode.generate(qr, { small: true });
+          
+          // Store QR code for frontend access
+          this.currentQR = qr;
+          this.notifyQRListeners(qr);
         }
 
         if (connection === 'close') {
@@ -123,6 +129,8 @@ class WhatsAppService {
           this.reconnectAttempts = 0; // Reset reconnect attempts on successful connection
           this.isReconnecting = false;
           this.phoneNumber = this.sock.user.id.split(':')[0];
+          this.currentQR = null; // Clear QR code when connected
+          this.notifyQRListeners(null);
           logger.info('✅ Conectado ao WhatsApp!');
           logger.info(`📞 Número: ${this.phoneNumber}`);
         }
@@ -190,7 +198,43 @@ class WhatsAppService {
     return {
       connected: this.isConnected,
       phoneNumber: this.phoneNumber,
+      qrCode: this.currentQR,
+      isReconnecting: this.isReconnecting,
     };
+  }
+
+  /**
+   * Adicionar listener para atualizações de QR
+   */
+  addQRListener(callback) {
+    this.qrListeners.push(callback);
+  }
+
+  /**
+   * Remover listener de QR
+   */
+  removeQRListener(callback) {
+    this.qrListeners = this.qrListeners.filter(l => l !== callback);
+  }
+
+  /**
+   * Notificar listeners sobre novo QR
+   */
+  notifyQRListeners(qr) {
+    this.qrListeners.forEach(listener => {
+      try {
+        listener(qr);
+      } catch (error) {
+        logger.error('Error notifying QR listener:', error);
+      }
+    });
+  }
+
+  /**
+   * Obter QR code atual
+   */
+  getCurrentQR() {
+    return this.currentQR;
   }
 
   /**
@@ -200,6 +244,9 @@ class WhatsAppService {
     if (this.sock) {
       await this.sock.logout();
       this.isConnected = false;
+      this.phoneNumber = null;
+      this.currentQR = null;
+      this.notifyQRListeners(null);
       logger.info('🔌 WhatsApp desconectado');
     }
   }

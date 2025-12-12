@@ -69,4 +69,13 @@ export const usersApi = {
   listTechnicians: () => api.get('/users/technicians'),
 };
 
+// WhatsApp API
+export const whatsappApi = {
+  getStatus: () => api.get('/whatsapp/status'),
+  getQR: () => api.get('/whatsapp/qr'),
+  sendMessage: (phone_number, message) => api.post('/whatsapp/send', { phone_number, message }),
+  disconnect: () => api.post('/whatsapp/disconnect'),
+  getLogs: () => api.get('/whatsapp/logs'),
+};
+
 export default api;
