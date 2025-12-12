@@ -36,6 +36,8 @@ services:
       JWT_SECRET: seu_jwt_secret_super_secreto_mude_isso
       JWT_REFRESH_SECRET: seu_refresh_secret_super_secreto_mude_isso
       FRONTEND_URL: http://localhost:3000
+      # WhatsApp disabled by default to prevent high CPU usage from reconnection loops
+      # Set to "true" only after proper configuration (see docs/WHATSAPP_INTEGRATION.md)
       WHATSAPP_ENABLED: "false"
     ports:
       - "5000:5000"
